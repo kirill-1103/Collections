@@ -26,7 +26,12 @@
     <label for="password">Password:</label>
     <input type="password" id="password" name="password">
 
+    <br>
+
     <input type="submit" value="ok">
+
+    <br>
+    <a th:href="@{/login}">Sign in</a>
 
     <div  class="alert alert-danger" role="alert"  th:if = "${errors}">
 
