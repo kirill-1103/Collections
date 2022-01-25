@@ -52,4 +52,8 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         repo.save(user);
     }
+
+    public User getUserByLogin(String login){
+        return repo.findByLogin(login);
+    }
 }

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New</title>
+    <link rel="stylesheet" th:href="@{/css/new_collection.css}">
+</head>
+<body>
+<form th:action="@{/collection/new}" th:method="POST" enctype="multipart/form-data">
+    <label for="name">Name:</label>
+    <input type="text" name="name" id="name" th:value="${collection == null ? '' : collection.getName()}" >
+
+
+    <br>
+
+    <div class="drop-zone">
+        <span class="drop-zone__prompt">Drop file here or click to upload</span>
+        <input type="file" name="img" class="drop-zone__input">
+    </div>
+
+    <br>
+
+    <label for="description">Description:</label>
+    <input type="text" name="description" id="description" th:value="${collection == null ? '' : collection.getDescription()}">
+
+    <br>
+
+    <label for="theme">Theme:</label>
+    <select name="theme" id="theme" th:value="${collection == null ? '' : collection.getTheme()}">
+        <option value="Alcohol">Alcohol</option>
+        <option value="Books">Books</option>
+        <option value="Stamps">Stamps</option>
+        <option value="Coins">Coins</option>
+        <option value="Toys">Toys</option>
+        <option value="Cars">Cars</option>
+        <option value="Other">Other</option>
+    </select>
+
+    <br>
+
+    <label for="num1">First numeric field name:</label>
+    <input type="text" id="num1" name="num1" th:value="${collection == null ? '' : collection.getNum1()}">
+
+    <br>
+
+    <label for="num2">Second numeric field name:</label>
+    <input type="text" id="num2" name="num2" th:value="${collection == null ? '' : collection.getNum2()}">
+
+    <br>
+
+    <label for="num3">Third numeric field name:</label>
+    <input type="text" id="num3" name="num3" th:value="${collection == null ? '' : collection.getNum3()}">
+
+    <br>
+
+    <label for="date1">First date field name:</label>
+    <input type="text" id="date1" name="date1" th:value="${collection == null ? '' : collection.getDate1()}">
+
+    <br>
+
+    <label for="date2">Second date field name:</label>
+    <input type="text" id="date2" name="date2" th:value="${collection == null ? '' : collection.getDate2()}">
+
+    <br>
+
+    <label for="date3">Third date field name:</label>
+    <input type="text" id="date3" name="date3" th:value="${collection == null ? '' : collection.getDate3()}">
+
+    <br>
+
+    <label for="bool1">First checkbox field name:</label>
+    <input type="text" id="bool1" name="bool1" th:value="${collection == null ? '' : collection.getBool1()}">
+
+    <br>
+
+    <label for="bool2">Second checkbox field name:</label>
+    <input type="text" id="bool2" name="bool2" th:value="${collection == null ? '' : collection.getBool2()}">
+
+    <br>
+
+    <label for="bool3">Third checkbox field name:</label>
+    <input type="text" id="bool3" name="bool3" th:value="${collection == null ? '' : collection.getBool3()}">
+
+    <br>
+
+    <label for="str1">First string field name:</label>
+    <input type="text" id="str1" name="str1" th:value="${collection == null ? '' : collection.getStr1()}">
+
+    <br>
+
+    <label for="str2">Second string field name:</label>
+    <input type="text" id="str2" name="str2" th:value="${collection == null ? '' : collection.getStr2()}">
+
+    <br>
+
+    <label for="str3">Third string field name:</label>
+    <input type="text" id="str3" name="str3" th:value="${collection == null ? '' : collection.getStr3()}">
+
+    <br>
+
+    <label for="text1">First text field name:</label>
+    <input type="text" id="text1" name="text1" th:value="${collection == null ? '' : collection.getText1()}">
+
+    <br>
+
+    <label for="text2">Second text field name:</label>
+    <input type="text" id="text2" name="text2" th:value="${collection == null ? '' : collection.getText2()}">
+
+    <br>
+
+    <label for="text3">Third text field name:</label>
+    <input type="text" id="text3" name="text3" th:value="${collection == null ? '' : collection.getText3()}">
+
+    <br>
+
+    <input type="submit" value="ok">
+</form>
+
+    <div th:if="${errors}">
+        <th:block th:each="error:${errors}">
+            <p  th:utext="${error.getValue()}"></p>
+        </th:block>
+    </div>
+
+    <script type="text/javascript" th:src="@{/js/new_collection.js}"></script>
+</body>
+</html>

@@ -14,11 +14,11 @@ public class Collection {
     private Long id;
 
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Name can't be empty!")
     String name;
 
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Theme can't be ampty!")
     String theme;
 
     String image;
@@ -26,6 +26,8 @@ public class Collection {
     @ManyToOne
     User creator;
 
+    @NotNull
+    @NotEmpty(message = "Description can't be empty!")
     String description;
 
     Integer countItems;
