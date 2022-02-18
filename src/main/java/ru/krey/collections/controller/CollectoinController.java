@@ -9,13 +9,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.krey.collections.auth.Auth;
 import ru.krey.collections.model.Collection;
+import ru.krey.collections.model.Role;
+import ru.krey.collections.model.User;
 import ru.krey.collections.service.CollectionService;
 import ru.krey.collections.service.UserService;
 
@@ -61,7 +60,7 @@ public class CollectoinController {
     public String addCollection(@Valid Collection collection, BindingResult bindingResult, Model model, @RequestParam("img") MultipartFile img ) throws IOException {
         if(!bindingResult.hasErrors()) {
             String url = null;
-            if (img != null) {
+            if (img != null && !img.isEmpty()) {
                 url = uploadFile(img);
                 collection.setImage(url);
             }
@@ -73,6 +72,42 @@ public class CollectoinController {
             return "new_collection";
         }
     }
+
+    @PostMapping ("/delete")
+    public String deleteCollection(@RequestParam Long id){
+        collectionService.deleteCollectionById(id);
+        return "redirect:/account";
+    }
+
+    @PostMapping("/edit")
+    public String editCollection(@RequestParam Long id,Collection collection,@RequestParam("img") MultipartFile img){
+        Collection collectionForEdit = collectionService.getCollectionById(id);
+        String image = collectionForEdit.getImage();
+        User creator = collectionForEdit.getCreator();
+        collectionForEdit = collection;
+        if(img == null  || img.isEmpty()){
+            collectionForEdit.setImage(image);
+        }else{
+                String url = uploadFile(img);
+                collectionForEdit.setImage(url);
+        }
+        collectionForEdit.setCreator(creator);
+        collectionService.addCollection(collectionForEdit);
+        return "redirect:/account";
+    }
+    @GetMapping("/edit/{id}")
+    public String editCollection(@PathVariable Long id,Model model){
+        String currentUserLogin = auth.getCurrentUserLogin();
+        User user = userService.getUserByLogin(currentUserLogin);
+        Collection collection = collectionService.getCollectionById(id);
+        if(collection.getCreator().equals(user) || user.getRoles().contains(Role.ADMIN)){
+            model.addAttribute("collection",collection);
+            return "edit_collection";
+        }else{
+            return "redirect:/";
+        }
+    }
+
 
     private void addErrors(Collection collection, Model model, BindingResult bindingResult){
         Map<String,String> errors = getErrors(bindingResult);

@@ -21,14 +21,6 @@ public class Item {
     @NotNull
     String name;
 
-    Long num1, num2, num3;
-
-    Boolean bool1, bool2, bool3;
-
-    Date date1, date2, date3;
-
-    String str1, str2, str3;
-
     String text1,text2,text3;
 
     Integer countLikes;

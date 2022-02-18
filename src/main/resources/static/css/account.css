@@ -1,0 +1,85 @@
+
+.collection-table tr{
+    text-align: center;
+    font-size:18px;
+}
+
+.collection-table tr>td{
+    text-align: center;
+    vertical-align: middle;
+    line-height: 117px;
+    height:117px;
+}
+
+#account{
+    width:80%;
+    margin:100px auto 0 auto;
+}
+table.table-fixedheader {
+    width: 100%;
+}
+
+table.table-fixedheader, table.table-fixedheader>thead, table.table-fixedheader>tbody, table.table-fixedheader>thead>tr, table.table-fixedheader>tbody>tr, table.table-fixedheader>thead>tr>th, table.table-fixedheader>tbody>td {
+    display: block;
+}
+table.table-fixedheader>thead>tr:after, table.table-fixedheader>tbody>tr:after {
+    content:' ';
+    display: block;
+    visibility: hidden;
+    clear: both;
+}
+
+table.table-fixedheader>tbody {
+    overflow-y: scroll;
+    height: 100px;
+
+}
+
+table.table-fixedheader>thead {
+    overflow-y: scroll;
+}
+
+table.table-fixedheader>thead::-webkit-scrollbar {
+    background-color: inherit;
+}
+
+
+table.table-fixedheader>thead>tr>th:after, table.table-fixedheader>tbody>tr>td:after {
+    content:' ';
+    display: table-cell;
+    visibility: hidden;
+    clear: both;
+}
+
+table.table-fixedheader>thead tr th, table.table-fixedheader>tbody tr td {
+    float: left;
+    word-wrap:break-word;
+}
+
+.right-click-menu {
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    list-style: none;
+    background: antiquewhite;
+    color:black;
+    border: 2px solid #ffffff;
+    border-radius: 2px;
+    display: none;
+    width:70px;
+    height:60px;
+}
+.right-click-menu.active {
+    display: block;
+}
+.right-click-menu li {
+    width: 100%;
+    padding: 3px;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-size: 15px;
+}
+.right-click-menu li:hover {
+    background: #333333;
+    color:white;
+}

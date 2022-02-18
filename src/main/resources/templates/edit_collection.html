@@ -2,21 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>New</title>
+    <title>Edit</title>
     <link rel="stylesheet" th:href="@{/css/new_collection.css}">
+
 </head>
 <body>
-<form th:action="@{/collection/new}" th:method="POST" enctype="multipart/form-data">
+<form th:action="@{/collection/edit?id=} + ${collection.getId()}" th:method="POST" enctype="multipart/form-data">
     <label for="name">Name:</label>
     <input type="text" name="name" id="name" th:value="${collection == null ? '' : collection.getName()}" >
 
 
     <br>
-
-    <div class="drop-zone">
+<!--    th:style="${(collection.getImage() == null || collection.getImage().isEmpty()) ? '' : 'background-image:url('+ collection.getImage()+')'}"-->
+    <div  class="drop-zone" id="drop-zone-m">
         <span class="drop-zone__prompt">Drop file here or click to upload</span>
-        <input type="file" name="img" class="drop-zone__input">
+        <input type="file" name="img" class="drop-zone__input" th:value="${(collection.getImage())}">
     </div>
+
 
     <br>
 
@@ -56,12 +58,17 @@
     <input type="submit" value="ok">
 </form>
 
-    <div th:if="${errors}">
-        <th:block th:each="error:${errors}">
-            <p  th:utext="${error.getValue()}"></p>
-        </th:block>
-    </div>
-
-    <script type="text/javascript" th:src="@{/js/new_collection.js}"></script>
+<div th:if="${errors}">
+    <th:block th:each="error:${errors}">
+        <p  th:utext="${error.getValue()}"></p>
+    </th:block>
+</div>
 </body>
+<script type="text/javascript" th:src="@{/js/new_collection.js}"></script>
+
+<script th:inline="javascript">
+    let imageUrl = /*[[${collection.getImage()}]]*/;
+    setPrevImage(imageUrl);
+</script>
+
 </html>
