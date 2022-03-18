@@ -7,6 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/account.css}">
 </head>
 <body>
+    <div th:insert="~{fragments/head_fragment :: head}"></div>
     <div id="account">
         <div class="text-center" style="font-size:22px">
             My collections
@@ -70,7 +71,7 @@
         document.location.href="/collection/new";
     }
     function goToCollection(id){
-
+        document.location.href = `/collection/${id}`;
     }
     function contextMenu(event,id){
         event.preventDefault();

@@ -13,10 +13,14 @@ import java.util.Set;
 @Service
 public class CollectionService {
     @Autowired
-    CollectionRepo collectionRepo;
+    private CollectionRepo collectionRepo;
 
     public void addCollection(Collection collection){
         collection.setCountItems(0);
+        collectionRepo.save(collection);
+    }
+
+    public void updateCollection(Collection collection){
         collectionRepo.save(collection);
     }
 

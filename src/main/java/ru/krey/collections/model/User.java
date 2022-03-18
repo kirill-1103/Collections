@@ -4,6 +4,8 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import lombok.Data;
@@ -43,6 +45,9 @@ public class User implements UserDetails {
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name="user_id"))
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
+
+    @ManyToMany(mappedBy = "users")
+    Set<Item> items = new HashSet<>();
 
     public User(){}
     public User(String login, String password, String name, String email, String language, String theme, boolean status ){
@@ -85,5 +90,18 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return isStatus();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

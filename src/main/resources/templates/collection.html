@@ -2,40 +2,194 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title th:value="${collection.getName()}"></title>
+    <title th:text="${collection.getName()}"></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" th:href="@{/css/collection.css}">
 </head>
 <body>
-    <th:block th:each="item:${items}">
-        <div class="card text-white bg-secondary mb-3" style="max-width: 18rem;">
-            <div class="card-header" th:text="${item.getName()}"></div>
-            <div class="card-body">
-                <div th:if="${!collection.getText1()!==null && !collection.getText1().length===0}">
-                    <h5 class="card-title" th:text="${collection.getText1()}" ></h5>
-                    <p class="card-text" th:text="${item.getText1()}"></p>
+    <div th:insert="~{fragments/head_fragment :: head}"></div>
+
+    <div style="text-align: center">
+        <p style="font-size: 25px;color:darkslategrey" th:text="${collection.getName()}"></p>
+    </div>
+    <div style="text-align: center" th:if="${items.size()==0}">
+        <p>Collection items will be here.</p>
+    </div>
+    <div class="cards align-content-center " >
+        <th:block th:each="item:${items}">
+            <div class="card text-white  mb-3" style="max-width: 18rem;">
+                <div class="card-header" th:text="${item.getName()}"></div>
+                <div class="card-body">
+                    <div class="card-str" th:if="${(collection.getText1()!=null) && (collection.getText1().length!=0)}">
+                        <h5 class="card-title" th:text="${collection.getText1()}" ></h5>
+                        <p class="card-text" style="font-size: 13px;margin-top:-3px" th:text="${item.getText1()}"></p>
+                    </div>
+
+                    <div class="card-str"  th:if="${(collection.getText2()!=null) && (collection.getText2().length!=0)}">
+                        <h5 class="card-title" th:text="${collection.getText2()}" ></h5>
+                        <p class="card-text" th:text="${item.getText2()}"></p>
+                    </div>
+
+                    <div class="card-str"  th:if="${(collection.getText3()!=null) && (collection.getText3().length!=0)}">
+                        <h5 class="card-title" th:text="${collection.getText3()}" ></h5>
+                        <p class="card-text" th:text="${item.getText3()}"></p>
+                    </div>
+
                 </div>
 
-                <div th:if="${!collection.getText2()!==null && !collection.getText2().length===0}">
-                    <h5 class="card-title" th:text="${collection.getText2()}" ></h5>
-                    <p class="card-text" th:text="${item.getText2()}"></p>
-                </div>
 
-                <div th:if="${!collection.getText3()!==null && !collection.getText3().length===0}">
-                    <h5 class="card-title" th:text="${collection.getText3()}" ></h5>
-                    <p class="card-text" th:text="${item.getText3()}"></p>
+                <div class="card-footer bg-transparent border-secondary">
+                    <button class="btn not-like" th:id="heartButton+${item.getId()}"><i class="fa fa-heart"></i></button>
+                    <label th:for="heartButton+${item.getId()}" th:text="${item.getCountLikes()}" th:id = "labelLikes+${item.getId}"></label>
                 </div>
 
             </div>
+        </th:block>
+    </div>
 
-
-            <div class="card-footer bg-transparent border-secondary">
-                <button class="btn " th:text="${item.getCountLikes()}"><i class="fa fa-heart"></i></button>
-            </div>
-
+    <div class="footer">
+        <div style="text-align: center">
+<!--            <button class="btn-secondary " th:attr="onclick=|newItem('${collection.getId()}')|" >Add item</button>-->
+            <button class="btn-secondary btn" data-bs-toggle="modal" data-bs-target="#modal">Add item</button>
         </div>
-    </th:block>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">New Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formItem" th:action="@{/collection/newItem?id=} + ${collection.getId()}" th:method="POST">
+                        <label class="form-label" for="name">Name:</label>
+                        <input class="form-control inputItem" type="text" id="name" name="name">
+
+                        <label class="form-label" for="text1" th:unless="${collection.getText1().isEmpty()}" th:text="${collection.getText1()}+':'"></label>
+                        <input class="form-control inputItem" type="text" id="text1" name="text1" th:unless="${collection.getText1().isEmpty()}">
+
+                        <label class="form-label" for="text2" th:unless="${collection.getText2().isEmpty()}" th:text="${collection.getText2()}+':'"></label>
+                        <input class="form-control inputItem" type="text" id="text2" name="text2" th:unless="${collection.getText2().isEmpty()}">
+
+                        <label class="form-label" for="text3" th:unless="${collection.getText3().isEmpty()}" th:text="${collection.getText3()}+':'"></label>
+                        <input class="form-control inputItem" type="text" id="text3" name="text3" th:unless="${collection.getText3().isEmpty()}">
+
+                        <label for="tags">Tags:</label>
+                        <input type="text" id="tags">
+                        <button class="btn btn-secondary btn-sm" onclick="addTag(event)">Add</button>
+                        <button class="btn btn-secondary btn-sm" onclick="clearTags(event)">Clear</button>
+
+                        <br>
+                        <input class="form-control" type="text" name="tags" disabled id="tags-input">
+                        <div class="modal-footer">
+                            <input type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="()=>{event.preventDefault();}" th:value="Close"></input>
+                            <button class="btn btn-primary" onclick="sendForm(event)">Create</button>
+                        </div>
+                    </form>
+
+            </div>
+        </div>
+    </div>
+    </div>
+
+
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+<script th:inline="javascript">
+    let count = 0;
+    let tags = [];
+    const maxSize = 20;
+    function addTag(event){
+        event.preventDefault();
+
+        let input = document.getElementById("tags-input");
+        let tagsInput = document.getElementById("tags");
+        let tag = tagsInput.value;
+        tag = tag.substring(0,maxSize);
+
+        if(tag.length===0){
+            return;
+        }
+        if(count>10){
+            alert("Max tags:10");
+            return;
+        }
+        if(tags.includes(tag.toUpperCase().replace(' ',''))){
+            alert("This tag already in list!");
+            return;
+        }
+
+        input.value+=tag.toUpperCase().replace(' ','') + ' ';
+        count++;
+        tags.push(tag.toUpperCase());
+        tagsInput.value = "";
+    }
+
+    function clearTags(event){
+        event.preventDefault()
+
+        let input = document.getElementById("tags-input");
+
+        tags=[];
+        count=0;
+        input.value="";
+    }
+
+    function sendForm(event){
+        event.preventDefault();
+
+        let inputs = document.getElementsByClassName("inputItem");
+        for (let input of inputs){
+            if(input.value.length===0){
+                alert("All fields must be filled");
+                return;
+            }
+        }
+
+        let form = document.getElementById("formItem");
+        let disableInput = document.getElementById("tags-input");
+        disableInput.disabled = false;
+        form.submit();
+    }
+</script>
+
+<script th:inline="javascript">
+    const request = new XMLHttpRequest();
+    let url = /*[[@{/collection/items/}]]*/;
+    url += /*[[${collection.getId()}]]*/;
+    request.open("GET",url);
+    request.onreadystatechange = () => {
+        if(request.readyState===4 && request.status===200){
+            let items = request.response;
+            console.log(items);
+            // for(let item of items){
+            //     document.getElementById("labelLikes"+item.getId()).innerText = item.getCountLikes();
+            //     console.log(item.getCountLikes())
+            // }
+        }
+    }
+    request.send();
+    // setInterval(()=>{
+    //     const request = new XMLHttpRequest();
+    //     let url = /*[[@{/collection/items/}]]*/;
+    //     url += /*[[${collection.getId()}]]*/;
+    //     request.open("GET",url);
+    //     request.addEventListener("readystatechange", () => {
+    //         if(request.readyState===4 && request.status===200){
+    //             let items = request.response;
+    //             console.log(items);
+    //             // for(let item of items){
+    //             //     document.getElementById("labelLikes"+item.getId()).innerText = item.getCountLikes();
+    //             //     console.log(item.getCountLikes())
+    //             // }
+    //         }
+    //     })
+    //     request.send();
+    // },10000);
+</script>
 </html>
