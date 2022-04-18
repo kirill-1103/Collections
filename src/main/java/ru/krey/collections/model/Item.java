@@ -1,6 +1,7 @@
 package ru.krey.collections.model;
 
 import lombok.Data;
+import ru.krey.collections.interfaces.ItemForResponse;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -12,7 +13,7 @@ import java.util.Set;
 
 @Data
 @Entity
-public class Item {
+public class Item implements ItemForResponse {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

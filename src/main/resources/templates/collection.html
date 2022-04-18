@@ -7,6 +7,72 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" th:href="@{/css/collection.css}">
 </head>
+
+<script th:inline="javascript">
+    let startItems = [];
+
+    function updateLikesOnHtml(){
+        let tempUserId = /*[[${userId}]]*/;
+        for (let item of startItems) {
+            let itemId = item.id;
+            let likeHtml = document.getElementById("labelLikes" + itemId);
+            let heartHtml = document.getElementById("heart"+itemId);
+            if(item.usersWhoLikesId.indexOf(tempUserId) !== -1){
+                heartHtml.style.color = "orange";
+            }else{
+                heartHtml.style.color = "white";
+            }
+            likeHtml.innerText = item.usersWhoLikesId.length;
+        }
+    }
+
+    function updateLikesOnDb(){
+        const request = new XMLHttpRequest();
+        let url = /*[[@{/items}]]*/;
+        request.open("POST",url);
+        request.setRequestHeader("Content-Type","application/json")
+        request.onreadystatechange = function(){
+            if(this.readyState===4 && this.status===200){
+                startItems = JSON.parse(request.response);
+                updateLikesOnHtml();
+            }
+        }
+        request.send(JSON.stringify(startItems));
+    }
+
+    let xmlHttpRequest = function(){
+        return new Promise((resolve,reject)=>{
+            const request = new XMLHttpRequest();
+            let url = /*[[@{/items/}]]*/
+                url += /*[[${collection.getId()}]]*/;
+            request.open("GET",url);
+            request.onreadystatechange = function(){
+                if(this.readyState === 4 && this.status===200){
+                    let items = this.response;
+                    resolve(JSON.parse(items));
+                }
+            };
+            request.send();
+        })
+    };
+    function startBootstrap() {
+        const request = new XMLHttpRequest();
+        let url = /*[[@{/items/}]]*/
+            url += /*[[${collection.getId()}]]*/;
+        request.open("GET", url, true);
+        request.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                let items = JSON.parse(this.response);
+                startItems=items;
+                updateLikesOnHtml();
+            }
+        };
+        request.send();
+    }
+    startBootstrap();
+
+</script>
+
 <body>
     <div th:insert="~{fragments/head_fragment :: head}"></div>
 
@@ -40,8 +106,8 @@
 
 
                 <div class="card-footer bg-transparent border-secondary">
-                    <button class="btn not-like" th:id="heartButton+${item.getId()}"><i class="fa fa-heart"></i></button>
-                    <label th:for="heartButton+${item.getId()}" th:text="${item.getCountLikes()}" th:id = "labelLikes+${item.getId}"></label>
+                    <button class="btn not-like" th:id="heartButton+${item.getId()}" th:attr="onclick=|like('${item.getId()}')|" ><i th:id="heart+${item.getId()}" class="fa fa-heart"></i></button>
+                    <label th:for="heartButton+${item.getId()}" th:text="${item.getUsers().size()}" th:id = "labelLikes+${item.getId}"></label>
                 </div>
 
             </div>
@@ -64,7 +130,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="formItem" th:action="@{/collection/newItem?id=} + ${collection.getId()}" th:method="POST">
+                    <form id="formItem" th:action="@{/items/newItem?id=} + ${collection.getId()}" th:method="POST">
                         <label class="form-label" for="name">Name:</label>
                         <input class="form-control inputItem" type="text" id="name" name="name">
 
@@ -156,40 +222,75 @@
         disableInput.disabled = false;
         form.submit();
     }
+
 </script>
 
 <script th:inline="javascript">
-    const request = new XMLHttpRequest();
-    let url = /*[[@{/collection/items/}]]*/;
-    url += /*[[${collection.getId()}]]*/;
-    request.open("GET",url);
-    request.onreadystatechange = () => {
-        if(request.readyState===4 && request.status===200){
-            let items = request.response;
-            console.log(items);
-            // for(let item of items){
-            //     document.getElementById("labelLikes"+item.getId()).innerText = item.getCountLikes();
-            //     console.log(item.getCountLikes())
-            // }
+    updateLikesOnHtml()
+
+    let countUpdates = 0;
+    function like(id) {
+        countUpdates++;
+        let likeAdded = false;
+        let startTempItem = getItemById(startItems,id);
+        let tempUserId = /*[[${userId}]]*/;
+        if(startTempItem.usersWhoLikesId.includes(tempUserId)){
+            removeLike(tempUserId,startTempItem);
+            likeAdded=false;
+        }else{
+            addLike(tempUserId,startTempItem);
+            likeAdded = true;
+        }
+        updateLikesOnHtml();
+
+        xmlHttpRequest().then((items) => {//получили айтемы
+            let tempItem = getItemById(items,id);
+            if(likeAdded){
+                let index = tempItem.usersWhoLikesId.indexOf(tempUserId);
+                if(index == -1){
+                    tempItem.usersWhoLikesId.push(tempUserId);
+                    tempItem.countLikes+=1;
+                }
+            }else{
+                let index = tempItem.usersWhoLikesId.indexOf(tempUserId);
+                if(index != -1){
+                    tempItem.usersWhoLikesId.splice(index,1);
+                    tempItem.countLikes-=1;
+                }
+            }
+            countUpdates--;
+            if(countUpdates === 0){
+                // startItems = items;
+                updateLikesOnHtml();
+                // for(let i of startItems){
+                    // console.log(i.id+" "+i.usersWhoLikesId.length)
+                // }
+                updateLikesOnDb();
+            }
+        })
+    }
+
+    function getItemById(items,id){
+        let item;
+        for(item of items){
+            if(item.id==id){
+                return item;
+            }
         }
     }
-    request.send();
-    // setInterval(()=>{
-    //     const request = new XMLHttpRequest();
-    //     let url = /*[[@{/collection/items/}]]*/;
-    //     url += /*[[${collection.getId()}]]*/;
-    //     request.open("GET",url);
-    //     request.addEventListener("readystatechange", () => {
-    //         if(request.readyState===4 && request.status===200){
-    //             let items = request.response;
-    //             console.log(items);
-    //             // for(let item of items){
-    //             //     document.getElementById("labelLikes"+item.getId()).innerText = item.getCountLikes();
-    //             //     console.log(item.getCountLikes())
-    //             // }
-    //         }
-    //     })
-    //     request.send();
-    // },10000);
+
+    function removeLike(tempId,tempItem){
+        let index = tempItem.usersWhoLikesId.indexOf(tempId);
+        tempItem.usersWhoLikesId.splice(index,1);
+        tempItem.countLikes-=1;
+    }
+
+    function addLike(tempId,tempItem){
+        tempItem.usersWhoLikesId.push(tempId);
+        tempItem.countLikes+=1;
+    }
+
+
+
 </script>
 </html>

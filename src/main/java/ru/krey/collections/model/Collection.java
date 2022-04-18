@@ -26,6 +26,8 @@ public class Collection {
     @ManyToOne
     User creator;
 
+
+
     @NotNull
     @NotEmpty(message = "Description can't be empty!")
     String description;

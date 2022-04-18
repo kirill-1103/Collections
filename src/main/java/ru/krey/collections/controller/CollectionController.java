@@ -2,11 +2,10 @@ package ru.krey.collections.controller;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,6 +13,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.krey.collections.auth.Auth;
+import ru.krey.collections.converter.ConvertItemForResponse;
+import ru.krey.collections.converter.ConvertItemForResponseToItem;
+import ru.krey.collections.interfaces.ItemForResponse;
 import ru.krey.collections.model.*;
 import ru.krey.collections.model.Collection;
 import ru.krey.collections.service.CollectionService;
@@ -31,7 +33,8 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("collection")
-public class CollectoinController {
+@Slf4j
+public class CollectionController {
 
     @Autowired
     CollectionService collectionService;
@@ -51,12 +54,16 @@ public class CollectoinController {
     @Autowired
     private final UserService userService;
 
+    @Autowired
+    private final ConvertItemForResponseToItem convertItemForResponseToItem;
+
     @Value("${upload.path}")
     private String path;
 
-    public CollectoinController(Auth auth, UserService userService) {
+    public CollectionController(Auth auth, UserService userService, ConvertItemForResponseToItem convertItemForResponseToItem) {
         this.auth = auth;
         this.userService = userService;
+        this.convertItemForResponseToItem = convertItemForResponseToItem;
     }
 
     @GetMapping("/new")
@@ -68,6 +75,7 @@ public class CollectoinController {
     public String getCollection(@PathVariable Long id, Model model){
         model.addAttribute("collection",collectionService.getCollectionById(id));
         model.addAttribute("items",itemService.getItemsByCollectionId(id));
+        model.addAttribute("userId",auth.getCurrentUserId());
         return "collection";
     }
 
@@ -123,21 +131,6 @@ public class CollectoinController {
         }
     }
 
-    @PostMapping("/newItem")
-    public String newItem(@RequestParam Long id, String name, String text1, String text2, String text3, String tags){
-        List<String> tagsArray = new ArrayList<String>(Arrays.asList(tags.split(" ")));
-        Item item = initItem(id,name,text1,text2,text3);
-        Set<Tag> tagsSet = getTagsSet(tagsArray);
-        tagsSet.forEach(item::addTag);
-        itemService.addItem(item);
-        return "redirect:/collection/"+id;
-    }
-
-    @GetMapping("/items/{id}")
-    public ResponseEntity<List<Item>> getItems(@PathVariable Long id){
-        return new ResponseEntity<>(itemService.getItemsByCollectionId(id), HttpStatus.OK);
-    }
-
 
     private void addErrors(Collection collection, Model model, BindingResult bindingResult){
         Map<String,String> errors = getErrors(bindingResult);
@@ -172,41 +165,6 @@ public class CollectoinController {
         fos.write(file.getBytes());
         fos.close();
         return convFile;
-    }
-
-    private Item initItem(Long id,String name,String text1,String text2,String text3){
-        Item item = new Item();
-        Collection collection = collectionService.getCollectionById(id);
-        item.setName(name);
-        item.setCollection(collection);
-        if(notEmpty(collection.getText1())){
-            item.setText1(text1);
-        }
-        if(notEmpty(collection.getText2())){
-            item.setText2(text2);
-        }
-        if(notEmpty(collection.getText3())){
-            item.setText3(text3);
-        }
-        return item;
-    }
-
-    private boolean notEmpty(String str){
-        return str!=null && str.length()!=0;
-    }
-
-    private Set<Tag> getTagsSet(List<String> tagsStr){
-        Set<Tag> tags = new HashSet<>();
-        tagsStr.forEach(tagText->{
-            Tag tag = tagService.findTagByText(tagText);
-            if(tag==null){
-                tag = new Tag();
-                tag.setText(tagText);
-                tagService.addTag(tag);
-            }
-            tags.add(tag);
-        });
-        return tags;
     }
 
 

@@ -11,12 +11,39 @@
 <body>
 <div th:insert="~{fragments/head_fragment :: head}" th:if="${name}"></div>
 <div th:insert="~{fragments/head_fragment :: head2}" th:unless="${name}"></div>
-    <p th:text="${name}"></p>
-    <form th:action="@{/logout}" th:method="POST">
-        <button type="submit">Sign Out</button>
-    </form>
+<!--    <p th:text="${name}"></p>-->
 
-    <a th:href="@{/account}">My account</a>
+<div class="cards align-content-center " th:if="${searchResult}">
+    <th:block th:each="item:${searchResult}">
+        <div class="card text-white  mb-3" style="max-width: 18rem;">
+            <div class="card-header" th:text="${item.getName()}"></div>
+            <div class="card-body">
+                <div class="card-str" th:if="${(collection.getText1()!=null) && (collection.getText1().length!=0)}">
+                    <h5 class="card-title" th:text="${collection.getText1()}" ></h5>
+                    <p class="card-text" style="font-size: 13px;margin-top:-3px" th:text="${item.getText1()}"></p>
+                </div>
+
+                <div class="card-str"  th:if="${(collection.getText2()!=null) && (collection.getText2().length!=0)}">
+                    <h5 class="card-title" th:text="${collection.getText2()}" ></h5>
+                    <p class="card-text" th:text="${item.getText2()}"></p>
+                </div>
+
+                <div class="card-str"  th:if="${(collection.getText3()!=null) && (collection.getText3().length!=0)}">
+                    <h5 class="card-title" th:text="${collection.getText3()}" ></h5>
+                    <p class="card-text" th:text="${item.getText3()}"></p>
+                </div>
+
+            </div>
+
+
+            <div class="card-footer bg-transparent border-secondary">
+                <button class="btn not-like" th:id="heartButton+${item.getId()}" th:attr="onclick=|like('${item.getId()}')|" ><i th:id="heart+${item.getId()}" class="fa fa-heart"></i></button>
+                <label th:for="heartButton+${item.getId()}" th:text="${item.getUsers().size()}" th:id = "labelLikes+${item.getId}"></label>
+            </div>
+
+        </div>
+    </th:block>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 

@@ -29,6 +29,10 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
+    public User getUserById(Long id){
+        return repo.findById(id).orElse(null);
+    }
+
     private boolean checkUserNotInDb(User user){
         User userFromDb = repo.findByLogin(user.getLogin());
         return userFromDb == null;
